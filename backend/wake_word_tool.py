@@ -1,22 +1,28 @@
-import speech_recognition as sr
 import logging
-import pyttsx3
 import time
+import pyttsx3
+import speech_recognition as sr
 
 logging.basicConfig(level=logging.DEBUG)
 
+MIC_INDEX = None
+WAKE_WORD = "hello jarvis"
+
 recognizer = sr.Recognizer()
-mic = sr.Microphone(device_index=None)  # Use default or set MIC_INDEX
+mic = sr.Microphone(device_index=MIC_INDEX)
 
 def listen_for_wake_word():
+    """Listens once and returns 'wake_word_detected' if the wake word is heard."""
     with mic as source:
         recognizer.adjust_for_ambient_noise(source)
         logging.info("🎤 Listening for wake word...")
         audio = recognizer.listen(source)
+
     try:
         transcript = recognizer.recognize_google(audio).lower() # type: ignore
         logging.info(f"🗣 Heard: {transcript}")
-        if "hello jarvis" in transcript:
+        if WAKE_WORD in transcript:
+            logging.info("✅ Wake word detected!")
             return "wake_word_detected"
     except sr.UnknownValueError:
         logging.warning("⚠️ Could not understand audio.")
@@ -25,9 +31,17 @@ def listen_for_wake_word():
     return "no_wake_word"
 
 def speak_text(text: str):
-    logging.info(f"Jac says: {text}")
+    """Uses pyttsx3 to speak the given text"""
+    logging.info(f"🗣 Speaking: {text}")
     try:
         engine = pyttsx3.init()
+        # Optionally pick a voice
+        for voice in engine.getProperty("voices"):
+            if "jamie" in voice.name.lower():  # Example: female voice
+                engine.setProperty("voice", voice.id)
+                break
+        engine.setProperty("rate", 180)
+        engine.setProperty("volume", 1.0)
         engine.say(text)
         engine.runAndWait()
         time.sleep(0.3)
