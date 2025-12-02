@@ -1,21 +1,20 @@
+import "../mcp_client.jac";
+
 node VoiceHandling {
     has wake_phrase: str = "hello jarvis";
-    has waiting: bool = false;
-
-    def start_voice_activation() -> str by llm(
-        method="ReAct",
-        tools=([self.listen_for_wake_word])
-    ) {}
 
     def listen_for_wake_word -> str by tool("listen_for_wake_word");
+    def speak(text: str) -> str by tool("speak_text");
 
     can execute with task_manager entry {
         print("[VoiceHandling] Listening for wake word...");
-        response = self.start_voice_activation();
-        print("Wake word event:", response);
-
+        result = self.listen_for_wake_word();
+        if (result == "wake_word_detected") {
+            print("Wake word detected! Responding...");
+            self.speak("Yes ma'am");
+        }
         report {
-            "event": response,
+            "event": result,
             "node": self.__class__.__name__
         };
     }
