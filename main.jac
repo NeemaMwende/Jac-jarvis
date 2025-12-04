@@ -62,6 +62,9 @@ node TaskHandling {
 # ------------------------------
 # ------------------------------
 node EmailHandling {
+    def get_email_from_contacts(name: str) -> str {
+        return "catherine@example.com";
+    }
     #can get_email_from_contacts(name: str) -> str;
     def write_email_content(utterance: str) -> str by llm(
         method="ReAct", tools=[self.get_email_from_contacts]
