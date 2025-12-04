@@ -1,5 +1,6 @@
 import from byllm.lib { Model }
 import time;
+import from sheets_tool { get_email_from_contacts }
 
 glob llm: Model = Model(model_name="gemini/gemini-2.0-flash");
 
@@ -57,14 +58,17 @@ node TaskHandling {
         } ;
     }
 }
-
-# ------------------------------
 # EMAIL HANDLING NODE
 # ------------------------------
+# ------------------------------
 node EmailHandling {
-    def write_email_content(utterance: str) -> str by llm();
+    #can get_email_from_contacts(name: str) -> str;
+    def write_email_content(utterance: str) -> str by llm(
+        method="ReAct", tools=[self.get_email_from_contacts]
+    );
+
     def route_and_run(utterance: str) -> str by llm(
-        method="ReAct", tools=[self.write_email_content]
+        method="ReAct", tools=[self.write_email_content, self.get_email_from_contacts]
     );
 
     can execute with task_manager entry {
@@ -81,7 +85,10 @@ node EmailHandling {
 }
 
 # ------------------------------
+# ------------------------------
 # GENERAL CHAT NODE
+# GENERAL CHAT NODE
+# ------------------------------
 # ------------------------------
 node GeneralChat {
     def chat(utterance: str) -> str by llm();
@@ -99,7 +106,10 @@ node GeneralChat {
 }
 
 # ------------------------------
+# ------------------------------
 # ROUTING ENUM
+# ROUTING ENUM
+# ------------------------------
 # ------------------------------
 enum RoutingNodes {
     TASK_HANDLING,
@@ -113,7 +123,10 @@ obj TaskPartition {
 }
 
 # ------------------------------
+# ------------------------------
 # TASK MANAGER WALKER
+# TASK MANAGER WALKER
+# ------------------------------
 # ------------------------------
 walker task_manager {
     has utterance: str = "";
@@ -146,7 +159,10 @@ walker task_manager {
 }
 
 # ------------------------------
+# ------------------------------
 # MAIN ENTRY
+# MAIN ENTRY
+# ------------------------------
 # ------------------------------
 with entry {
     user_input: str = str(input("Hello Angel how can I help you today? "));
