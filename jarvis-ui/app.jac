@@ -68,76 +68,116 @@
 #         </div>;
 #     }
 # }
-cl import from react { useState, useEffect }
-cl import from "@jac-client/utils" { Router, Routes, Route, Link }
+
+# cl import from react { useState, useEffect }
+# cl import from "@jac-client/utils" { Router, Routes, Route, Link }
+
+# cl {
+#     # Page Components
+#     def Home()  -> any {
+#         return <div>
+#             <h1>
+#                 Home Page
+#             </h1>
+#             <p>
+#                 Welcome to the home page!
+#             </p>
+#         </div>;
+#     }
+
+#     def About()  -> any {
+#         return <div>
+#             <h1>
+#                 ℹ About Page
+#             </h1>
+#             <p>
+#                 Learn more about our application.
+#             </p>
+#         </div>;
+#     }
+
+#     def Contact()  -> any {
+#         return <div>
+#             <h1>
+#                 Contact Page
+#             </h1>
+#             <p>
+#                 Email: contact@example.com
+#             </p>
+#         </div>;
+#     }
+
+#     # Main App with React Router
+#     def app()  -> any {
+#         return <Router>
+#             <div>
+#                 <nav>
+#                     <Link to="/">
+#                         Home
+#                     </Link>
+#                     {" | "}
+#                     <Link to="/about">
+#                         About
+#                     </Link>
+#                     {" | "}
+#                     <Link to="/contact">
+#                         Contact
+#                     </Link>
+#                 </nav>
+#                 <Routes>
+#                     <Route
+#                         path="/"
+#                         element={<Home />}
+#                     />
+#                     <Route
+#                         path="/about"
+#                         element={<About />}
+#                     />
+#                     <Route
+#                         path="/contact"
+#                         element={<Contact />}
+#                     />
+#                 </Routes>
+#             </div>
+#         </Router>;
+#     }
+# }
+cl import from "@jac-client/utils" { useNavigate }
 
 cl {
-    # Page Components
-    def Home()  -> any {
-        return <div>
-            <h1>
-                 Home Page
-            </h1>
-            <p>
-                Welcome to the home page!
-            </p>
-        </div>;
-    }
+    def LoginForm()  -> any {
+        let [username, setUsername] = useState("");
+        let [password, setPassword] = useState("");
+        let navigate = useNavigate();
 
-    def About()  -> any {
-        return <div>
-            <h1>
-                ℹ About Page
-            </h1>
-            <p>
-                Learn more about our application.
-            </p>
-        </div>;
-    }
+        async def handleLogin(e: any) -> None {
+            e.preventDefault();
+            success = await jacLogin(username, password);
+            if success {
+                navigate("/dashboard");  # Navigate after successful login
+            } else {
+                alert("Login failed");
+            }
+        }
 
-    def Contact()  -> any {
-        return <div>
-            <h1>
-                 Contact Page
-            </h1>
-            <p>
-                Email: contact@example.com
-            </p>
-        </div>;
-    }
-
-    # Main App with React Router
-    def app()  -> any {
-        return <Router>
-            <div>
-                <nav>
-                    <Link to="/">
-                        Home
-                    </Link>
-                    {" | "}
-                    <Link to="/about">
-                        About
-                    </Link>
-                    {" | "}
-                    <Link to="/contact">
-                        Contact
-                    </Link>
-                </nav>
-                <Routes>
-                    <Route
-                        path="/"
-                        element={<Home />}
-                    />
-                    <Route
-                        path="/about"
-                        element={<About />}
-                    />
-                    <Route
-                        path="/contact"
-                        element={<Contact />}
-                    />
-                </Routes>
-            </div>
-        </Router>;
+        return <form
+            onSubmit={handleLogin}
+        >
+            <input
+                type="text"
+                value={username}
+                onChange={lambda  e: any  -> None{ setUsername(e.target.value);} }
+                placeholder="Username"
+            />
+            <input
+                type="password"
+                value={password}
+                onChange={lambda  e: any  -> None{ setPassword(e.target.value);} }
+                placeholder="Password"
+            />
+            <button type="submit">
+                Login
+            </button>
+        </form>;
     }
 }
